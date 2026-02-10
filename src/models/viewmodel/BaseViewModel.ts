@@ -1,4 +1,4 @@
-export interface BaseEntity {
+export interface BaseViewModel {
     id: number | string;
     createdAt?: Date;
     updatedAt?: Date;

@@ -3,7 +3,7 @@ import {AUTH} from "../constants/auth.ts";
 const ACCESS_TOKEN = AUTH.ACCESS_TOKEN;
 const REFRESH_TOKEN = AUTH.REFRESH_TOKEN;
 
-export const tokenService = {
+export const TokenManager = {
     getAccessToken: () => localStorage.getItem(ACCESS_TOKEN),
     getRefreshToken: () => localStorage.getItem(REFRESH_TOKEN),
 

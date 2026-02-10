@@ -6,7 +6,7 @@ import type {
 } from 'react-admin';
 
 import { serviceRegistry } from './serviceRegistry';
-import type {ListParams} from "../../models/requests/listParams.ts";
+import type {ListParams} from "../../models/requests/ListParams.ts";
 
 const notImplemented = async (): Promise<never> => {
     throw new Error('Not implemented');

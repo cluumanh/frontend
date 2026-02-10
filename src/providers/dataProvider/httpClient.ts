@@ -1,7 +1,9 @@
 import axios, {type AxiosRequestConfig} from 'axios';
-import {tokenService} from '../../store/tokenService.ts'
+import {TokenManager} from '../../store/TokenManager.ts'
 import {AUTH} from "../../constants/auth.ts";
 import {API} from "../../constants/api.ts";
+import {Util} from "../../utils/util.ts";
+import {Common} from "../../constants/common.ts";
 
 type queueCallBack = (token: string) => void;
 const apiUrl = import.meta.env.VITE_API_URL;
@@ -15,10 +17,12 @@ export const httpClient = axios.create({
 });
 
 httpClient.interceptors.request.use(config => {
-    const token = tokenService.getAccessToken();
+    const token = TokenManager.getAccessToken();
     if (token) {
         config.headers.Authorization = `${AUTH.BEARER} ${token}`;
     }
+    config.headers["X-Device-Id"] = Util.getDeviceId();
+    config.headers["X-Client-Id"] = "web";
     return config;
 });
 
@@ -26,8 +30,9 @@ let isRefreshing = false;
 let queue: queueCallBack[] = [];
 
 httpClient.interceptors.response.use(
-    res => res,
+    res => res?.data,
     async error => {
+        const apiResponse = error?.response?.data;
         const originalRequest = error.config as RetryAxiosRequestConfig;
 
         if (error.response?.status === 401 && !originalRequest._retry) {
@@ -46,10 +51,10 @@ httpClient.interceptors.response.use(
             isRefreshing = true;
             try {
                 const res = await axios.post(`${apiUrl}${API.AUTH.REFRESH}`, {
-                    refreshToken: tokenService.getRefreshToken(),
+                    refreshToken: TokenManager.getRefreshToken(),
                 });
 
-                tokenService.setTokens(
+                TokenManager.setTokens(
                     res.data.accessToken,
                     res.data.refreshToken
                 );
@@ -59,12 +64,18 @@ httpClient.interceptors.response.use(
 
                 return httpClient(originalRequest);
             } catch {
-                tokenService.clear();
-                window.location.href = '/login';
+                TokenManager.clear();
+                if (window.location.pathname !== Common.LOGIN_PAGE_PATH) {
+                    window.location.href = Common.LOGIN_PAGE_PATH;
+                }
             } finally {
                 isRefreshing = false;
             }
         }
-        return Promise.reject(error);
+        return Promise.reject({
+            status: apiResponse?.status,
+            code: apiResponse?.code,
+            message: apiResponse?.message,
+        });
     }
 );

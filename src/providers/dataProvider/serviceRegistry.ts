@@ -1,4 +1,4 @@
-import {UserService} from "../../services/userService.ts";
+import {UserService} from "../../services/user.service.ts";
 
 export const serviceRegistry = {
     users: new UserService(),

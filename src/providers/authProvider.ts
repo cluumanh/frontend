@@ -1,40 +1,49 @@
 import type {AuthProvider} from 'react-admin';
-import {AuthService} from '../services/authService.ts';
-import {tokenService} from '../store/tokenService';
+import {AuthService} from '../services/auth.service.ts';
+import {TokenManager} from '../store/TokenManager.ts';
+import type {LoginRequest} from "../models/requests/LoginRequest.ts";
+import {Common} from "../constants/common.ts";
+import {Role} from "../enums/roles.enum.ts";
 
-const authService = new AuthService();
 
 const authProvider: AuthProvider = {
-    login: ({username, password}) =>
-        authService.login(username, password),
+     login: async ({username, password}) => {
+        const loginRequest: LoginRequest = {
+            username: username,
+            password: password
+        }
+        const  apiResponse =  await AuthService.login(loginRequest);
+        if (apiResponse != null) {
+            return Promise.resolve()
+        }
+        return Promise.reject();
+    },
 
     logout: () => {
-        tokenService.clear();
-        authService.logout();
+        TokenManager.clear();
+        AuthService.logout();
         return Promise.resolve();
     },
 
     checkAuth: () => {
-        const token = tokenService.getAccessToken();
-        console.log("token", token);
+        const token = TokenManager.getAccessToken();
         if (!token || token === 'null' || token === 'undefined') {
             return Promise.reject();
         }
-
         return Promise.resolve();
     },
 
     checkError: (error) => {
         const status = error?.status;
         if (status === 401 || status === 403) {
-            tokenService.clear();
+            TokenManager.clear();
             return Promise.reject();
         }
         return Promise.resolve();
     },
 
     getPermissions: () =>
-        Promise.resolve(localStorage.getItem('role') ?? 'ADMIN'),
+        Promise.resolve(localStorage.getItem(Common.ROLE_TYPE) ?? Role.ADMIN),
 };
 
 export default authProvider;
