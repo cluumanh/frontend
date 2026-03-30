@@ -4,6 +4,7 @@ import {AUTH} from "../../constants/auth.ts";
 import {API} from "../../constants/api.ts";
 import {Util} from "../../utils/util.ts";
 import {Common} from "../../constants/common.ts";
+import {AppErr} from "../../utils/AppErr.ts";
 
 type queueCallBack = (token: string) => void;
 const apiUrl = import.meta.env.VITE_API_URL;
@@ -72,10 +73,6 @@ httpClient.interceptors.response.use(
                 isRefreshing = false;
             }
         }
-        return Promise.reject({
-            status: apiResponse?.status,
-            code: apiResponse?.code,
-            message: apiResponse?.message,
-        });
+        return Promise.reject(new AppErr(apiResponse?.message, apiResponse?.status, apiResponse?.code));
     }
 );

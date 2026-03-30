@@ -5,18 +5,14 @@ import type {LoginRequest} from "../models/requests/LoginRequest.ts";
 import {Common} from "../constants/common.ts";
 import {Role} from "../enums/roles.enum.ts";
 
-
 const authProvider: AuthProvider = {
-     login: async ({username, password}) => {
+    login: async ({username, password}) => {
         const loginRequest: LoginRequest = {
             username: username,
             password: password
         }
-        const  apiResponse =  await AuthService.login(loginRequest);
-        if (apiResponse != null) {
-            return Promise.resolve()
-        }
-        return Promise.reject();
+        await AuthService.login(loginRequest);
+        return Promise.resolve();
     },
 
     logout: () => {

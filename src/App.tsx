@@ -1,11 +1,14 @@
 
 import './App.css'
 import authProvider from "./providers/authProvider.ts";
-import {Admin, Resource} from "react-admin";
+import {Admin, CustomRoutes, Resource} from "react-admin";
 import Dashboard from "./pages/dashboard/dashboard.tsx";
 import LoginPage from "./pages/login/loginPage.tsx";
-import Layout from "./layout/layout.tsx"
 import {dataProvider} from "./providers/dataProvider/dataProvider.ts";
+import MainLayout from "./layout/MainLayout.tsx";
+import RegisterPage from "./pages/login/registerPage.tsx";
+import { Route } from "react-router-dom";
+import {Resources} from "./constants/resources.ts";
 
 const App = () => (
     <Admin
@@ -13,10 +16,14 @@ const App = () => (
         dataProvider={dataProvider}
         dashboard={Dashboard}
         loginPage={LoginPage}
-        layout={Layout}
+        layout={MainLayout}
         requireAuth
     >
-        <Resource name="users" />
+        <CustomRoutes noLayout>
+            <Route path="/register" element={<RegisterPage />} />
+        </CustomRoutes>
+
+        <Resource name={Resources.USERS}></Resource>
     </Admin>
 );
 

@@ -1,7 +1,8 @@
 import {UserService} from "../../services/user.service.ts";
+import {Resources} from "../../constants/resources.ts";
 
 export const serviceRegistry = {
-    users: new UserService(),
+    [Resources.USERS]: new UserService(),
 } as const;
 
 export type ResourceName = keyof typeof serviceRegistry;
